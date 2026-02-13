@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Splash">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        >
+        <View
+            android:layout_width="20dp"
+            android:layout_height="80dp"
+            android:background="@color/black"
+            android:id="@+id/firstline"
+            />
+        <View
+            android:layout_width="20dp"
+            android:layout_height="100dp"
+            android:background="#00BCD4"
+            android:layout_toRightOf="@id/firstline"
+            android:id="@+id/secondline"
+            />
+        <View
+            android:layout_width="20dp"
+            android:layout_height="120dp"
+            android:background="@color/black"
+            android:id="@+id/thirdline"
+            android:layout_toRightOf="@id/secondline"
+            />
+
+        <View
+            android:id="@+id/fourthline"
+            android:layout_width="20dp"
+            android:layout_height="140dp"
+            android:layout_marginLeft="0dp"
+            android:layout_toRightOf="@id/thirdline"
+            android:background="#673AB7" />
+
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tvSlogan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="Apni dukaan "
+        android:textSize="20sp"
+        android:textStyle="bold|italic" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:gravity="center|bottom"
+        >
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/ivLogo"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/truck" />
+
+</LinearLayout>
