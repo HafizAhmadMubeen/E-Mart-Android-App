@@ -1,3 +1,26 @@
 <resources>
-    <string name="app_name">L23-0824_Assignment1</string>
+    <string name="app_name">FastMart</string>
+
+    <string name="welcome_text">Welcome</string>
+    <string name="deal_of_the_day">Deals of the day</string>
+
+    <string name="Mic_price">$108.20</string>
+    <string name="Mic_name">RØDE PodMic</string>
+    <string name="Mic_desc">Dynamic microphone, Speaker microphone</string>
+
+    <string name="Black_Headphone_desc">Model: WH-1000XM4, Black</string>
+    <string name="Beige_Headphone_desc">Model: WH-1000XM4, Beige</string>
+    <string name="Headphone_price">$349.99</string>
+    <string name="Headphone_name">SONY Premium Wireless Headphones</string>
+
+    <string name="Headphone_detailed_desc">The technology with two noise sensors and two
+                                                microphones on each ear cup detects ambient
+                                                noise and sends the data to the HD noise
+                                                minimization processor QN1. Using a new
+                                                algorithm, the QN1 then processes and minimizes
+                                                noise for different acoustic environments in real
+                                                time. Together with a new Bluetooth Audio SoC</string>
+    <string name="Buy_Now">Buy Now</string>
+
+
 </resources>
