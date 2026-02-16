@@ -2,6 +2,7 @@ package com.example.l23_0824_assignment1;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,6 +18,8 @@ import java.util.Objects;
 public class RecommendedDetailActivity extends AppCompatActivity {
 
     private ImageView ivProduct, btnBack;
+
+    private Button btnbuynow;
     private TextView tvName, tvPrice, tvDesc;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,12 @@ public class RecommendedDetailActivity extends AppCompatActivity {
        Intent i =getIntent();
        String product_name = i.getStringExtra(KeyUtils.ProductName);
        setupProductDetails(product_name);
+
+       btnbuynow.setOnClickListener(v -> {
+           Intent buyintent = new Intent(RecommendedDetailActivity.this, BuyNowActivity.class);
+           buyintent.putExtra(KeyUtils.ProductName, product_name);
+           startActivity(buyintent);
+       });
     }
 
     private void init() {
@@ -42,6 +51,9 @@ public class RecommendedDetailActivity extends AppCompatActivity {
         tvDesc = findViewById(R.id.tvDetailFullDesc);
         btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> finish());
+        btnbuynow = findViewById(R.id.btnBuyNow);
+
+
     }
 
     private void setupProductDetails(String product_name) {
@@ -66,4 +78,6 @@ public class RecommendedDetailActivity extends AppCompatActivity {
         tvPrice.setText(priceRes);
         tvDesc.setText(descRes);
     }
+
+
 }
