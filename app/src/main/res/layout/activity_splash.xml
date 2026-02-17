@@ -1,74 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical"
+    android:background="#B86454"
     tools:context=".Splash">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        >
-        <View
-            android:layout_width="20dp"
-            android:layout_height="80dp"
-            android:background="@color/black"
-            android:id="@+id/firstline"
-            />
-        <View
-            android:layout_width="20dp"
-            android:layout_height="100dp"
-            android:background="#00BCD4"
-            android:layout_toRightOf="@id/firstline"
-            android:id="@+id/secondline"
-            />
-        <View
-            android:layout_width="20dp"
-            android:layout_height="120dp"
-            android:background="@color/black"
-            android:id="@+id/thirdline"
-            android:layout_toRightOf="@id/secondline"
-            />
-
-        <View
-            android:id="@+id/fourthline"
-            android:layout_width="20dp"
-            android:layout_height="140dp"
-            android:layout_marginLeft="0dp"
-            android:layout_toRightOf="@id/thirdline"
-            android:background="#673AB7" />
-
-
-    </RelativeLayout>
-
-    <TextView
-        android:id="@+id/tvSlogan"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center"
-        android:padding="10dp"
-        android:text="@string/app_name"
-        android:textSize="20sp"
-        android:textStyle="bold|italic" />
-
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:gravity="center|bottom"
-        >
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
+        <TextView
+            android:id="@+id/tvFast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fast"
+            android:textSize="40sp"
+            android:textColor="#000000"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvMart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mart"
+            android:textSize="40sp"
+            android:textColor="#FF9800"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/ivLogo"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:src="@drawable/truck" />
-
-</LinearLayout>
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/truck"
+        android:translationX="-1000dp" /> </LinearLayout>

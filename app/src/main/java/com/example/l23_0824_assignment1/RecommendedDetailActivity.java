@@ -61,7 +61,7 @@ public class RecommendedDetailActivity extends AppCompatActivity {
 
 
         if (product_name.equals("DealOfDay")) {
-            updateUI(R.drawable.mic_stand, R.string.Mic_name, R.string.Mic_price, R.string.Mic_desc);
+            updateUI(R.drawable.mic_stand, R.string.Mic_name, R.string.Mic_price, R.string.Mic_detailed_desc);
         }
         else if (product_name.equals("blackheadphone")) {
             updateUI(R.drawable.blackheadphone, R.string.Headphone_name, R.string.Headphone_price, R.string.Headphone_detailed_desc);

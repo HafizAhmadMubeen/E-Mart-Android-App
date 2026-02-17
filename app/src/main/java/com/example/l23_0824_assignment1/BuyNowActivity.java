@@ -69,7 +69,7 @@ public class BuyNowActivity extends AppCompatActivity {
     }
 
     private void sendSMS(String product_name) {
-        String phoneNumber = "03008016682"; // Replace with your target number
+        String phoneNumber = "03001234567"; // Replace with your target number
         String message = "Success! You have bought " + product_name;
 
         try {

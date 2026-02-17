@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.view.animation.AnimationUtils;
+import android.widget.TextView;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -15,8 +17,9 @@ import androidx.core.view.WindowInsetsCompat;
 public class Splash extends AppCompatActivity {
 
     ImageView ivLogo;
+    TextView tvFast, tvMart;
 
-    Animation movingtruck;
+    Animation movingtruck,fastIn, martIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +33,7 @@ public class Splash extends AppCompatActivity {
         });
         init();
         applyAnimation();
-        new Handler().postDelayed(() -> {movetoDashboard();}, 5000);
+        new Handler().postDelayed(() -> {movetoDashboard();}, 4000);
     }
 
     private void movetoDashboard()
@@ -40,14 +43,26 @@ public class Splash extends AppCompatActivity {
     }
 
     private void applyAnimation() {
+
         ivLogo.setAnimation(movingtruck);
+        tvFast.setAnimation(fastIn);
+        tvMart.setAnimation(martIn);
         ivLogo.startAnimation(movingtruck);
+        tvFast.startAnimation(fastIn);
+        tvMart.startAnimation(martIn);
+
 
     }
     private void init()
     {
         ivLogo = findViewById(R.id.ivLogo);
+        tvFast = findViewById(R.id.tvFast);
+        tvMart = findViewById(R.id.tvMart);
+
+
         movingtruck = AnimationUtils.loadAnimation(this, R.anim.movingtruck);
+        fastIn = AnimationUtils.loadAnimation(this, R.anim.fast_in);
+        martIn = AnimationUtils.loadAnimation(this, R.anim.mart_in);
 
     }
 }

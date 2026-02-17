@@ -22,5 +22,13 @@
                                                 time. Together with a new Bluetooth Audio SoC</string>
     <string name="Buy_Now">Buy Now</string>
 
+    <string name="Mic_detailed_desc">The PodMic is a broadcast-grade dynamic microphone
+    optimized for podcasting. It has a rich, balanced sound, with an internal pop
+    filter to minimize explosives and internal shock-mounting to reduce vibration.
+    Constructed from all-metal, the PodMic is built to last and features an
+    integrated swing mount for easy positioning. Optimized for use with the
+    RØDECaster Pro, it also offers exceptional results with any high-quality
+    microphone interface.</string>
+
 
 </resources>
