@@ -69,7 +69,7 @@ public class BuyNowActivity extends AppCompatActivity {
     }
 
     private void sendSMS(String product_name) {
-        String phoneNumber = "03001234567"; // Replace with your target number
+        String phoneNumber = "03001234567";
         String message = "Success! You have bought " + product_name;
 
         try {
@@ -78,7 +78,7 @@ public class BuyNowActivity extends AppCompatActivity {
             Toast.makeText(this, "Purchase Confirmed! SMS Sent.", Toast.LENGTH_LONG).show();
             finish();
         } catch (Exception e) {
-            // This runs if permission is missing or hardware fails
+
             Toast.makeText(this, "SMS failed to send: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }

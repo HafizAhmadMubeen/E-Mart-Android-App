@@ -33,7 +33,7 @@ public class Splash extends AppCompatActivity {
         });
         init();
         applyAnimation();
-        new Handler().postDelayed(() -> {movetoDashboard();}, 4000);
+        new Handler().postDelayed(() -> {movetoDashboard();}, 3000);
     }
 
     private void movetoDashboard()
