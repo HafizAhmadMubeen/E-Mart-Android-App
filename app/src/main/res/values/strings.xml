@@ -31,4 +31,25 @@
     microphone interface.</string>
 
 
+    // --------------Log_Signup_Activity--------------
+    <string name="Get_Started_Now">Get Started now</string>
+    <string name="logSignup_Description">Create an account or log in to explore about our app</string>
+
+    // --------------Login_Fragment and Signup Fragment--------------
+    <string name="Email">Email</string>
+    <string name="Password">Password</string>
+    <string name="Log_In">Log In</string>
+    <string name="Hint_Email">Loisbecket@gmail.com</string>
+    <string name="Hint_Password">*******</string>
+    <string name="Verify_Password">Verify Password</string>
+    <string name="Sign_Up">Sign Up</string>
+
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+
+
 </resources>

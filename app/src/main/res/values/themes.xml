@@ -1,9 +1,12 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.L230824_Assignment1" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<resources>
+
+    <style name="Theme.L230824_Assignment1" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- keep this empty or add your customizations here -->
     </style>
 
-    <style name="Theme.L230824_Assignment1" parent="Base.Theme.L230824_Assignment1" />
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

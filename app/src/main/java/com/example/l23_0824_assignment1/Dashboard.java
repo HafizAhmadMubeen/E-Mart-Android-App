@@ -3,6 +3,7 @@ package com.example.l23_0824_assignment1;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -10,11 +11,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.viewpager2.widget.ViewPager2;
 
 public class Dashboard extends AppCompatActivity {
 
 
     private LinearLayout dealCard, cardBlack, cardBeige;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

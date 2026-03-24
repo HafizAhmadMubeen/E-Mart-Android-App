@@ -1,6 +1,7 @@
 package com.example.l23_0824_assignment1;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.animation.Animation;
@@ -38,7 +39,17 @@ public class Splash extends AppCompatActivity {
 
     private void movetoDashboard()
     {
-        startActivity(new Intent(Splash.this, Dashboard.class));
+        SharedPreferences sp = getSharedPreferences("login", MODE_PRIVATE);
+        boolean isLogin = sp.getBoolean("isLogin", false);
+
+        if (isLogin)
+        {
+            startActivity(new Intent(Splash.this, MainActivity.class));
+        }
+        else
+        {
+            startActivity(new Intent(Splash.this, Log_SignupActivity.class));
+        }
         finish();
     }
 
