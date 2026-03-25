@@ -8,6 +8,7 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,9 +41,14 @@ public class Splash extends AppCompatActivity {
     private void movetoDashboard()
     {
         SharedPreferences sp = getSharedPreferences("login", MODE_PRIVATE);
+        boolean isfirsttimeapp = sp.getBoolean("isfirsttimeapp", true);
         boolean isLogin = sp.getBoolean("isLogin", false);
 
-        if (isLogin)
+        if (isfirsttimeapp)
+        {
+            startActivity(new Intent(Splash.this, OnBoarding_Activity.class));
+        }
+        else if (isLogin)
         {
             startActivity(new Intent(Splash.this, MainActivity.class));
         }
