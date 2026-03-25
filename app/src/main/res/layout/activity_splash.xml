@@ -18,18 +18,18 @@
             android:id="@+id/tvFast"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fast"
+            android:text="@string/app_name_fast"
             android:textSize="40sp"
-            android:textColor="#000000"
+            android:textColor="@color/black"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvMart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mart"
+            android:text="@string/app_name_mart"
             android:textSize="40sp"
-            android:textColor="#FF9800"
+            android:textColor="@color/splash_background"
             android:textStyle="bold" />
     </LinearLayout>
 

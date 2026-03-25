@@ -1,14 +1,20 @@
 package com.example.l23_0824_assignment1;
 
+
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -67,6 +73,28 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        RecyclerView rvRecommended = view.findViewById(R.id.rvRecommended);
+        rvRecommended.setLayoutManager(new GridLayoutManager(getContext(), 2));
+
+        ArrayList<Product> products = new ArrayList<>();
+        for (int i = 1; i <= 25; i++) {
+            products.add(new Product(
+                    "ID"+i,
+                    "Sony Headphone " + i,
+                    "$349.99",
+                    "",
+                    "Model: WH-1000XM4",
+                    R.drawable.blackheadphone,
+                    false
+            ));
+        }
+
+        rvRecommended.setHasFixedSize(true);
+        Recommended_Adapter adapter = new Recommended_Adapter(getActivity(), products);
+        rvRecommended.setAdapter(adapter);
+
+
 
 
     }

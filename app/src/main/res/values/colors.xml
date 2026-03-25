@@ -4,5 +4,13 @@
     <color name="white">#FFFFFFFF</color>
     <color name="silver">#BBBBBB</color>
     <color name="grey">#666666</color>
+    <color name="red">#FF4D6D</color>
+    <color name="text_color">#8A8A8A</color>
+    <color name="splash_background">#FF9800</color>
+    <color name="Light_grey_text">#AAAAAA</color>
+    <color name="OffWhite">#F4F4F4</color>
+    <color name="V_Light_grey">#888888</color>
+
+
 
 </resources>

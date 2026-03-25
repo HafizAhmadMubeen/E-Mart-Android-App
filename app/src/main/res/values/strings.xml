@@ -1,11 +1,15 @@
 <resources>
+
+    // --------------Home Fragment--------------
     <string name="app_name">FastMart</string>
 
     <string name="welcome_text">Welcome</string>
     <string name="deal_of_the_day">Deals of the day</string>
 
     <string name="Mic_price">$108.20</string>
+    <string name="Old_Mic_price">$199.99</string>
     <string name="Mic_name">RØDE PodMic</string>
+    <string name="Microphones">Microphones</string>
     <string name="Mic_desc">Dynamic microphone, Speaker microphone</string>
 
     <string name="Black_Headphone_desc">Model: WH-1000XM4, Black</string>
@@ -44,6 +48,14 @@
     <string name="Verify_Password">Verify Password</string>
     <string name="Sign_Up">Sign Up</string>
 
+    //--------------Splash--------------
+    <string name="app_name_fast">Fast</string>
+    <string name="app_name_mart">Mart</string>
+
+    //--------------OnBoarding--------------
+    <string name="Get_Started">Get Started</string>
+    <string name="onboarding_desc">Discover products you love,\ndelivered to your door.</string>
+    <string name="Welcome_to_FastMart">Welcome to FastMart"></string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
