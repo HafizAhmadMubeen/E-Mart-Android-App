@@ -79,38 +79,33 @@ public class HomeFragment extends Fragment {
         loadHomepage();
     }
 
-    private void loadHomepage()
-    {
+    private void loadHomepage() {
+
         RecyclerView rvRecommended = getView().findViewById(R.id.rvRecommended);
         RecyclerView rvDeals = getView().findViewById(R.id.rvDeals);
+
 
         rvRecommended.setLayoutManager(new GridLayoutManager(getContext(), 2));
         rvDeals.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
-        ArrayList<Product> products = new ArrayList<>();
+
+        ArrayList<Product> allProducts = Product_Repository.getAllProducts();
+
 
         ArrayList<Product> dealProducts = new ArrayList<>();
-        dealProducts.add(new Product("1", "RØDE PodMic", "$108.20", "$199.99", "Dynamic microphone", R.drawable.mic_stand,false));
-        dealProducts.add(new Product("2", "Sony XM4", "$349.99", "$399.99", "Noise Cancelling", R.drawable.blackheadphone,false));
-        dealProducts.add(new Product("3", "Logitech G Pro", "$129.00", "$159.00", "Gaming Headset", R.drawable.whiteheadphone,false));
+        if (allProducts.size() >= 3) {
+            dealProducts.add(allProducts.get(0));
+            dealProducts.add(allProducts.get(1));
+            dealProducts.add(allProducts.get(2));
+        }
+
 
         DealsAdapter dealsAdapter = new DealsAdapter(getContext(), dealProducts);
         rvDeals.setAdapter(dealsAdapter);
 
-        for (int i = 1; i <= 25; i++) {
-            products.add(new Product(
-                    "ID"+i,
-                    "Sony Headphone " + i,
-                    "$349.99",
-                    "",
-                    "Model: WH-1000XM4",
-                    R.drawable.blackheadphone,
-                    false
-            ));
-        }
 
         rvRecommended.setHasFixedSize(true);
-        Recommended_Adapter adapter = new Recommended_Adapter(getActivity(), products);
+        Recommended_Adapter adapter = new Recommended_Adapter(getActivity(), allProducts);
         rvRecommended.setAdapter(adapter);
     }
 

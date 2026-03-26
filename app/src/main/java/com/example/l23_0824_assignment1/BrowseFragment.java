@@ -87,8 +87,8 @@ public class BrowseFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         allProducts = new ArrayList<>();
-        allProducts.add(new Product("Sony XM4", "Sony", "$349", "", "Noise cancelling", R.drawable.blackheadphone, false));
-        allProducts.add(new Product("RØDE Mic", "RODE", "$108", "", "Professional Mic", R.drawable.mic_icon, false));
+        //allProducts.add(new Product("Sony XM4", "Sony", "$349", "", "Noise cancelling", ,R.drawable.blackheadphone, false));
+        //allProducts.add(new Product("RØDE Mic", "RODE", "$108", "", "Professional Mic", R.drawable.mic_icon, false));
         //allProducts.add(new Product("Jeans", "Levis", "$50", "", "Blue Denim", R.drawable.jeans_img, false));
 
         ImageView ivBack = view.findViewById(R.id.ivBack);

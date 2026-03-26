@@ -103,7 +103,7 @@ public class FavouritesFragment extends Fragment {
             String desc = sp.getString(name + "_desc", "No description available");
             int imgRes = sp.getInt(name + "_img", R.drawable.mic_stand);
 
-            Product p = new Product(name, name, price, "", desc, imgRes, false);
+            Product p = new Product(name, name, price, "", desc,"", imgRes, false);
             favList.add(p);
         }
 

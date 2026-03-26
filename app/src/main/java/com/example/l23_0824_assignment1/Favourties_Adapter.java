@@ -45,7 +45,7 @@ public class Favourties_Adapter extends RecyclerView.Adapter<Favourties_Adapter.
         holder.ivProduct.setImageResource(product.getImageRes());
         holder.tvPrice.setText(product.getPrice());
         holder.tvName.setText(product.getName());
-        holder.tvDesc.setText(product.getDescription());
+        holder.tvShortDesc.setText(product.getShortDescription());
 
 
         holder.ivCart.setOnClickListener(v -> {
@@ -55,8 +55,10 @@ public class Favourties_Adapter extends RecyclerView.Adapter<Favourties_Adapter.
             editor.putInt(product.getName() + "_qty", 1);
             editor.putString(product.getName() + "_price", product.getPrice());
             editor.apply();
+            CartManager.addProduct(product);
 
-            Toast.makeText(context, product.getName() + " added to Cart!", Toast.LENGTH_SHORT).show();
+
+            Toast.makeText(context, "Added to Cart", Toast.LENGTH_SHORT).show();
 
         });
 
@@ -103,7 +105,7 @@ public class Favourties_Adapter extends RecyclerView.Adapter<Favourties_Adapter.
 
     public static class FavourtiesViewHolder extends RecyclerView.ViewHolder {
         ImageView ivProduct, ivCart, ivMore;
-        TextView tvPrice, tvName, tvDesc;
+        TextView tvPrice, tvName, tvShortDesc;
 
         public FavourtiesViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -112,7 +114,7 @@ public class Favourties_Adapter extends RecyclerView.Adapter<Favourties_Adapter.
             ivMore = itemView.findViewById(R.id.ivMoreOptions);
             tvPrice = itemView.findViewById(R.id.tvFavPrice);
             tvName = itemView.findViewById(R.id.tvFavName);
-            tvDesc = itemView.findViewById(R.id.tvFavDesc);
+            tvShortDesc = itemView.findViewById(R.id.tvFavDesc);
         }
     }
 

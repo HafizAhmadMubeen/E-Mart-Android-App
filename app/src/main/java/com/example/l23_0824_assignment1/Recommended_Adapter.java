@@ -1,6 +1,7 @@
 package com.example.l23_0824_assignment1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ public class Recommended_Adapter extends RecyclerView.Adapter<Recommended_Adapte
         holder.ivRecProduct.setImageResource(product.getImageRes());
         holder.tvRecPrice.setText(product.getPrice());
         holder.tvRecName.setText(name);
-        holder.tvRecModel.setText(product.getDescription());
+        holder.tvRecModel.setText(product.getShortDescription());
 
 
         SharedPreferences sp = context.getSharedPreferences("favourites", Context.MODE_PRIVATE);
@@ -58,6 +60,21 @@ public class Recommended_Adapter extends RecyclerView.Adapter<Recommended_Adapte
             holder.ivHeartRec.setImageResource(R.drawable.empty_heart_icon);
         }
 
+        holder.cardRecommended.setOnClickListener(v -> {
+            SharedPreferences sp1 = v.getContext().getSharedPreferences("TransferSP", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp1.edit();
+
+            // Save every piece of info individually
+            editor.putString("p_name", product.getName());
+            editor.putString("p_price", product.getPrice());
+            editor.putString("p_desc", product.getDescription());
+            editor.putInt("p_img", product.getImageRes());
+
+            editor.apply();
+
+            Intent intent = new Intent(v.getContext(), RecommendedDetailActivity.class);
+            v.getContext().startActivity(intent);
+        });
 
         holder.ivHeartRec.setOnClickListener(v -> {
 
@@ -67,7 +84,7 @@ public class Recommended_Adapter extends RecyclerView.Adapter<Recommended_Adapte
             if (!updatedSet.contains(name)) {
                 updatedSet.add(name);
                 editor.putString(name + "_price", product.getPrice());
-                editor.putString(name + "_desc", product.getDescription());
+                editor.putString(name + "_desc", product.getShortDescription());
                 editor.putInt(product.getName() + "_img", product.getImageRes());
 
                 holder.ivHeartRec.setImageResource(R.drawable.filled_heart_icon);
@@ -98,6 +115,8 @@ public class Recommended_Adapter extends RecyclerView.Adapter<Recommended_Adapte
         TextView tvRecPrice;
         TextView tvRecName;
         TextView tvRecModel;
+        CardView cardRecommended;
+
 
         public RecommendedViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -107,6 +126,8 @@ public class Recommended_Adapter extends RecyclerView.Adapter<Recommended_Adapte
             tvRecName = itemView.findViewById(R.id.tvRecName);
             tvRecModel = itemView.findViewById(R.id.tvRecModel);
             ivHeartRec = itemView.findViewById(R.id.ivHeartRec);
+            cardRecommended = itemView.findViewById(R.id.cardRecommended);
+
         }
 
     }

@@ -1,8 +1,10 @@
 package com.example.l23_0824_assignment1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -48,7 +52,7 @@ public class DealsAdapter extends RecyclerView.Adapter<DealsAdapter.DealViewHold
         holder.ivProduct.setImageResource(product.getImageRes());
         holder.tvName.setText(name);
         holder.tvNewPrice.setText(product.getPrice());
-        holder.tvDesc.setText(product.getDescription());
+        holder.tvDesc.setText(product.getShortDescription());
 
 
         holder.tvOldPrice.setText(product.getOriginalPrice());
@@ -67,6 +71,23 @@ public class DealsAdapter extends RecyclerView.Adapter<DealsAdapter.DealViewHold
             holder.ivHeart.setImageResource(R.drawable.empty_heart_icon);
         }
 
+        holder.cardDeal.setOnClickListener(v -> {
+            SharedPreferences sp1 = v.getContext().getSharedPreferences("TransferSP", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp1.edit();
+
+            // Save every piece of info individually
+            editor.putString("p_name", product.getName());
+            editor.putString("p_price", product.getPrice());
+            editor.putString("p_desc", product.getDescription());
+            editor.putInt("p_img", product.getImageRes());
+
+            editor.apply();
+
+            Intent intent = new Intent(v.getContext(), RecommendedDetailActivity.class);
+            v.getContext().startActivity(intent);
+        });
+
+
 
         holder.ivHeart.setOnClickListener(v -> {
             SharedPreferences.Editor editor = sp.edit();
@@ -78,7 +99,7 @@ public class DealsAdapter extends RecyclerView.Adapter<DealsAdapter.DealViewHold
 
                 updatedSet.add(name);
                 editor.putString(name + "_price", product.getPrice());
-                editor.putString(name + "_desc", product.getDescription());
+                editor.putString(name + "_desc", product.getShortDescription());
                 editor.putInt(name + "_img", product.getImageRes());
 
                 holder.ivHeart.setImageResource(R.drawable.filled_heart_icon);
@@ -109,6 +130,7 @@ public class DealsAdapter extends RecyclerView.Adapter<DealsAdapter.DealViewHold
     public static class DealViewHolder extends RecyclerView.ViewHolder {
         ImageView ivProduct, ivHeart;
         TextView tvName, tvNewPrice, tvOldPrice, tvDesc;
+        CardView cardDeal;
 
         public DealViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -118,6 +140,7 @@ public class DealsAdapter extends RecyclerView.Adapter<DealsAdapter.DealViewHold
             tvNewPrice = itemView.findViewById(R.id.tvNewPrice);
             tvOldPrice = itemView.findViewById(R.id.tvOldPrice);
             tvDesc = itemView.findViewById(R.id.tvDealDesc);
+            cardDeal = itemView.findViewById(R.id.cardDeal);
 
         }
     }

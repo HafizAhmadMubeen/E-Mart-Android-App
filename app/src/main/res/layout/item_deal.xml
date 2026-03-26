@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="10dp"
     app:cardCornerRadius="20dp"
+    android:id="@+id/cardDeal"
     app:cardElevation="4dp">
 
     <RelativeLayout

@@ -2,11 +2,18 @@ package com.example.l23_0824_assignment1;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +21,12 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class CartFragment extends Fragment {
+
+
+    private RecyclerView rvCartItems;
+    private TextView tvTotalPrice, tvShippingPrice;
+    private Button btnCheckout;
+    private CartAdapter adapter;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -60,5 +73,62 @@ public class CartFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_cart, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        rvCartItems = view.findViewById(R.id.rvCartItems);
+        tvTotalPrice = view.findViewById(R.id.tvTotalPrice);
+        tvShippingPrice = view.findViewById(R.id.tvShippingPrice);
+        btnCheckout = view.findViewById(R.id.btnCheckout);
+
+        rvCartItems.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        adapter = new CartAdapter(getContext(), CartManager.cartList, new OnCartChangedListener() {
+            @Override
+            public void onPriceChanged(double newTotal) {
+                updatePriceUI(newTotal);
+            }
+        });
+
+        rvCartItems.setAdapter(adapter);
+
+
+        calculateInitialTotal();
+
+
+        btnCheckout.setOnClickListener(v -> {
+            if (CartManager.cartList.isEmpty()) {
+                Toast.makeText(getContext(), "Your cart is empty!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Proceeding to Checkout...", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+    private void calculateInitialTotal() {
+        double total = 0;
+        for (CartItem item : CartManager.cartList) {
+            String priceStr = item.getProduct().getPrice().replace("$", "").trim();
+            double price = Double.parseDouble(priceStr);
+            total += (price * item.getQuantity());
+        }
+        updatePriceUI(total);
+    }
+
+    private void updatePriceUI(double total) {
+        tvTotalPrice.setText(String.format("$%.2f", total));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (CartManager.cartList != null && adapter != null) {
+            adapter.notifyDataSetChanged();
+            calculateInitialTotal();
+        }
     }
 }
