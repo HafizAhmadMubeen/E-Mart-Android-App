@@ -25,6 +25,17 @@
                 android:padding="10dp"
                 android:src="@drawable/blackheadphone" />
 
+            <ImageView
+                android:id="@+id/ivHeartRec"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_margin="8dp"
+                android:background="@drawable/empty_heart_icon"
+                android:elevation="4dp"
+                android:padding="6dp" />
+
         </RelativeLayout>
 
         <TextView

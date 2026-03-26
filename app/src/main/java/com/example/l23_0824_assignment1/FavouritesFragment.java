@@ -1,12 +1,22 @@
 package com.example.l23_0824_assignment1;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,5 +70,51 @@ public class FavouritesFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_favourites, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        RecyclerView rvFavourites;
+
+        rvFavourites= view.findViewById(R.id.rvFavourites);
+        rvFavourites.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        loadfavourties();
+
+
+
+    }
+    private void loadfavourties() {
+
+        ArrayList<Product> favList = new ArrayList<>();
+
+
+        SharedPreferences sp = getContext().getSharedPreferences("favourites", Context.MODE_PRIVATE);
+
+
+        Set<String> nameSet = sp.getStringSet("fav_names_set", new HashSet<>());
+
+
+        for (String name : nameSet) {
+
+            String price = sp.getString(name + "_price", "$0.00");
+            String desc = sp.getString(name + "_desc", "No description available");
+            int imgRes = sp.getInt(name + "_img", R.drawable.mic_stand);
+
+            Product p = new Product(name, name, price, "", desc, imgRes, false);
+            favList.add(p);
+        }
+
+
+        Favourties_Adapter adapter = new Favourties_Adapter(getContext(), favList);
+        RecyclerView rvFavourites = getView().findViewById(R.id.rvFavourites);
+        rvFavourites.setAdapter(adapter);
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadfavourties();
     }
 }

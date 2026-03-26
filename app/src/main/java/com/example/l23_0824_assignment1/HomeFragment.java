@@ -7,11 +7,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,10 +76,27 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        RecyclerView rvRecommended = view.findViewById(R.id.rvRecommended);
+        loadHomepage();
+    }
+
+    private void loadHomepage()
+    {
+        RecyclerView rvRecommended = getView().findViewById(R.id.rvRecommended);
+        RecyclerView rvDeals = getView().findViewById(R.id.rvDeals);
+
         rvRecommended.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        rvDeals.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
         ArrayList<Product> products = new ArrayList<>();
+
+        ArrayList<Product> dealProducts = new ArrayList<>();
+        dealProducts.add(new Product("1", "RØDE PodMic", "$108.20", "$199.99", "Dynamic microphone", R.drawable.mic_stand,false));
+        dealProducts.add(new Product("2", "Sony XM4", "$349.99", "$399.99", "Noise Cancelling", R.drawable.blackheadphone,false));
+        dealProducts.add(new Product("3", "Logitech G Pro", "$129.00", "$159.00", "Gaming Headset", R.drawable.whiteheadphone,false));
+
+        DealsAdapter dealsAdapter = new DealsAdapter(getContext(), dealProducts);
+        rvDeals.setAdapter(dealsAdapter);
+
         for (int i = 1; i <= 25; i++) {
             products.add(new Product(
                     "ID"+i,
@@ -93,9 +112,11 @@ public class HomeFragment extends Fragment {
         rvRecommended.setHasFixedSize(true);
         Recommended_Adapter adapter = new Recommended_Adapter(getActivity(), products);
         rvRecommended.setAdapter(adapter);
+    }
 
-
-
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadHomepage();
     }
 }

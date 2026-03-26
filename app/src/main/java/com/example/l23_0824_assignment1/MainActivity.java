@@ -82,8 +82,6 @@ public class MainActivity extends AppCompatActivity {
                                 tab.setText("Favourites");
                                 tab.setIcon(R.drawable.general_icon);
                                 BadgeDrawable bd = tab.getOrCreateBadge();
-                                bd.setNumber(6);
-                                bd.setMaxCharacterCount(2);
                                 break;
                             case 3:
                                 tab.setText("Cart");
