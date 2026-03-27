@@ -88,6 +88,9 @@ public class Favourties_Adapter extends RecyclerView.Adapter<Favourties_Adapter.
                 favList.remove(position);
                 notifyItemRemoved(position);
                 notifyItemRangeChanged(position, favList.size());
+                if (context instanceof MainActivity) {
+                    ((MainActivity) context).updateFavouritesBadge();
+                }
 
                 Toast.makeText(context, "Removed from Favourites", Toast.LENGTH_SHORT).show();
             });

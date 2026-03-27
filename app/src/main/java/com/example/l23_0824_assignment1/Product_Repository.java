@@ -27,7 +27,7 @@ public class Product_Repository {
         // 2. BlackHeadphones
         list.add(new Product(
                 "2",
-                "SONY Premium Wireless Headphones",
+                "SONY Premium Wireless Headphones Black",
                 "$70.99",
                 "$70.99",
                 "Model: WH-1000XM4, Black",
@@ -45,7 +45,7 @@ public class Product_Repository {
         // 3. WhiteHeadphones
         list.add(new Product(
                 "3",
-                "SONY Premium Wireless Headphones",
+                "SONY Premium Wireless Headphones Beige",
                 "$70.99",
                 "$70.99",
                 "Model: WH-1000XM4, Beige",

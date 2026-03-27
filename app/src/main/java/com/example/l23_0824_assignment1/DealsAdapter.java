@@ -103,6 +103,8 @@ public class DealsAdapter extends RecyclerView.Adapter<DealsAdapter.DealViewHold
                 editor.putInt(name + "_img", product.getImageRes());
 
                 holder.ivHeart.setImageResource(R.drawable.filled_heart_icon);
+
+
                 Toast.makeText(context, "Added to Favourites", Toast.LENGTH_SHORT).show();
             } else {
 
@@ -111,7 +113,6 @@ public class DealsAdapter extends RecyclerView.Adapter<DealsAdapter.DealViewHold
                 editor.remove(name + "_desc");
                 editor.remove(name + "_img");
 
-
                 holder.ivHeart.setImageResource(R.drawable.empty_heart_icon);
                 Toast.makeText(context, "Removed from Favourites", Toast.LENGTH_SHORT).show();
             }
@@ -119,6 +120,10 @@ public class DealsAdapter extends RecyclerView.Adapter<DealsAdapter.DealViewHold
 
             editor.putStringSet("fav_names_set", updatedSet);
             editor.apply();
+
+            if (context instanceof MainActivity) {
+                ((MainActivity) context).updateFavouritesBadge();
+            }
         });
     }
 

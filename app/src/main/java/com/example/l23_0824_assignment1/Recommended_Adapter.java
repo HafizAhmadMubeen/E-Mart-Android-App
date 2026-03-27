@@ -88,6 +88,7 @@ public class Recommended_Adapter extends RecyclerView.Adapter<Recommended_Adapte
                 editor.putInt(product.getName() + "_img", product.getImageRes());
 
                 holder.ivHeartRec.setImageResource(R.drawable.filled_heart_icon);
+
                 Toast.makeText(context, "Added to Favourites", Toast.LENGTH_SHORT).show();
             } else {
                 updatedSet.remove(name);
@@ -96,11 +97,17 @@ public class Recommended_Adapter extends RecyclerView.Adapter<Recommended_Adapte
                 editor.remove(product.getName() + "_img");
 
 
+
+
                 holder.ivHeartRec.setImageResource(R.drawable.empty_heart_icon);
                 Toast.makeText(context, "Removed from Favourites", Toast.LENGTH_SHORT).show();
             }
             editor.putStringSet("fav_names_set", updatedSet);
             editor.apply();
+
+            if (context instanceof MainActivity) {
+                ((MainActivity) context).updateFavouritesBadge();
+            }
         });
     }
 
