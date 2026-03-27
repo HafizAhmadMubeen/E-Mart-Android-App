@@ -1,13 +1,18 @@
 package com.example.l23_0824_assignment1;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.telephony.SmsManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +26,7 @@ import android.widget.Toast;
  * create an instance of this fragment.
  */
 public class CartFragment extends Fragment {
-
+    private static final int SMS_PERMISSION_CODE = 101;
 
     private RecyclerView rvCartItems;
     private TextView tvTotalPrice, tvShippingPrice;
@@ -101,9 +106,19 @@ public class CartFragment extends Fragment {
 
         btnCheckout.setOnClickListener(v -> {
             if (CartManager.cartList.isEmpty()) {
-                Toast.makeText(getContext(), "Your cart is empty!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Cart is empty", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.SEND_SMS)
+                    == PackageManager.PERMISSION_GRANTED) {
+
+                showConfirmOrderDialog();
+
             } else {
-                Toast.makeText(getContext(), "Proceeding to Checkout...", Toast.LENGTH_SHORT).show();
+
+                requestPermissions(new String[]{Manifest.permission.SEND_SMS}, SMS_PERMISSION_CODE);
             }
         });
 
@@ -129,6 +144,59 @@ public class CartFragment extends Fragment {
         if (CartManager.cartList != null && adapter != null) {
             adapter.notifyDataSetChanged();
             calculateInitialTotal();
+        }
+    }
+
+    private void showConfirmOrderDialog() {
+
+        StringBuilder sb = new StringBuilder("E-Mart Order:\n");
+        double total = 0;
+
+        for (CartItem item : CartManager.cartList) {
+            sb.append("- ").append(item.getProduct().getName())
+                    .append(" (x").append(item.getQuantity()).append(")\n");
+
+            double price = Double.parseDouble(item.getProduct().getPrice().replace("$", ""));
+            total += (price * item.getQuantity());
+        }
+        sb.append("Total: $").append(String.format("%.2f", total));
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Confirm Purchase")
+                .setMessage("Send order confirmation SMS?")
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    sendCartSMS(sb.toString());
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void sendCartSMS(String message) {
+        String phoneNumber = "03001234567";
+
+        try {
+            SmsManager smsManager = getContext().getSystemService(SmsManager.class);
+            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+
+            Toast.makeText(getContext(), "Purchase Confirmed! SMS Sent.", Toast.LENGTH_LONG).show();
+
+            CartManager.cartList.clear();
+            adapter.notifyDataSetChanged();
+            updatePriceUI(0);
+
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "SMS failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == SMS_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showConfirmOrderDialog();
+            } else {
+                Toast.makeText(getContext(), "Permission Denied to send SMS", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
