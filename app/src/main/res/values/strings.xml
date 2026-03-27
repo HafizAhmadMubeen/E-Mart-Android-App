@@ -60,6 +60,13 @@
     <string name="onboarding_desc">Discover products you love,\ndelivered to your door.</string>
     <string name="Welcome_to_FastMart">Welcome to FastMart"></string>
 
+    //--------------Profile--------------------
+    <string name="user_name">Cody Fisher</string>
+    <string name="user_email">cody.fisher45@example.com</string>
+    <string name="user_dob">12/07/1990</string>
+    <string name="user_gender">Male</string>
+    <string name="user_phone">+1 234 453 231 506</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
