@@ -37,7 +37,6 @@
     //-------------Product_Repository-------------
 
 
-
     // --------------Log_Signup_Activity--------------
     <string name="Get_Started_Now">Get Started now</string>
     <string name="logSignup_Description">Create an account or log in to explore about our app</string>

@@ -10,7 +10,6 @@
     <color name="Light_grey_text">#AAAAAA</color>
     <color name="OffWhite">#F4F4F4</color>
     <color name="V_Light_grey">#888888</color>
-
-
+    <color name="input_bg">#E0E5EC</color>
 
 </resources>
