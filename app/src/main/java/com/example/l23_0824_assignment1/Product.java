@@ -23,6 +23,8 @@ public class Product
         this.isFavourite = isFavourite;
     }
 
+    public Product() { }
+
     public String getId() {
         return id;
     }

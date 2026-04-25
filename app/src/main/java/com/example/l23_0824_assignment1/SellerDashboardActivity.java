@@ -117,7 +117,7 @@ public class SellerDashboardActivity extends AppCompatActivity implements Naviga
 
         if (id == R.id.nav_home) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainer, new HomeFragment()).commit();
+                    .replace(R.id.fragmentContainer, new SellerHomeFragment()).commit();
         } else if (id == R.id.nav_orders) {
             // getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new OrdersFragment()).commit();
             Toast.makeText(this, "Order History", Toast.LENGTH_SHORT).show();
@@ -136,7 +136,7 @@ public class SellerDashboardActivity extends AppCompatActivity implements Naviga
         sp.edit().clear().apply();
 
         Intent intent = new Intent(SellerDashboardActivity.this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }

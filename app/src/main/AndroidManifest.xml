@@ -18,6 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.L230824_Assignment1">
         <activity
+            android:name=".ProductAddActivity"
+            android:exported="false" />
+        <activity
             android:name=".SellerDashboardActivity"
             android:exported="false" />
         <activity
