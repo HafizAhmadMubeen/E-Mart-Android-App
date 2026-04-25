@@ -51,9 +51,6 @@ public class LoginFragment extends Fragment {
 
             if (email.isEmpty() || password.isEmpty()) return;
 
-            // TRACKER 1
-            Toast.makeText(getActivity(), "Attempting Login...", Toast.LENGTH_SHORT).show();
-
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -62,8 +59,6 @@ public class LoginFragment extends Fragment {
                                 // TRACKER 2
                                 user.reload().addOnCompleteListener(reloadTask -> {
                                     if (user.isEmailVerified()) {
-                                        // TRACKER 3
-                                        Toast.makeText(getActivity(), "Verified! Checking DB...", Toast.LENGTH_SHORT).show();
                                         checkUserInDatabase(user.getUid());
                                     } else {
                                         Toast.makeText(getActivity(), "Email NOT verified yet!", Toast.LENGTH_LONG).show();
@@ -72,11 +67,10 @@ public class LoginFragment extends Fragment {
                                 });
                             }
                         } else {
-                            // This will tell you if the password is wrong or user doesn't exist
+
                             Toast.makeText(getActivity(), "Auth Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     }).addOnFailureListener(e -> {
-                        // This catches network issues or console config issues
                         Toast.makeText(getActivity(), "System Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     });
         });

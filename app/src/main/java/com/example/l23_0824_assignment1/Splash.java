@@ -43,19 +43,29 @@ public class Splash extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences("login", MODE_PRIVATE);
         boolean isfirsttimeapp = sp.getBoolean("isfirsttimeapp", true);
         boolean isLogin = sp.getBoolean("isLogin", false);
-
         if (isfirsttimeapp)
         {
             startActivity(new Intent(Splash.this, OnBoarding_Activity.class));
         }
         else if (isLogin)
         {
-            startActivity(new Intent(Splash.this, MainActivity.class));
+            SharedPreferences sp1 = getSharedPreferences("login", MODE_PRIVATE);
+            String account = sp1.getString("accountType", "buyer");
+            Toast.makeText(this, account, Toast.LENGTH_SHORT).show();
+            if(account.equals("Seller"))
+            {
+
+                startActivity(new Intent(Splash.this, SellerDashboardActivity.class));
+            }
+            else {
+                startActivity(new Intent(Splash.this, MainActivity.class));
+            }
         }
         else
         {
-            startActivity(new Intent(Splash.this, Log_SignupActivity.class));
+             startActivity(new Intent(Splash.this, Log_SignupActivity.class));
         }
+
         finish();
     }
 

@@ -1,64 +1,99 @@
 package com.example.l23_0824_assignment1;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ProfileFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 public class ProfileFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private TextView tvName, tvAddress, tvCountry, tvGender, tvPhone;
+    private Button btnLogout;
+    private DatabaseReference userRef;
+    private FirebaseAuth mAuth;
 
     public ProfileFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProfileFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ProfileFragment newInstance(String param1, String param2) {
-        ProfileFragment fragment = new ProfileFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        // 1. Inflate the layout
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        // 2. Initialize IDs from your updated XML
+        tvName = view.findViewById(R.id.tvProfileName);
+        tvAddress = view.findViewById(R.id.tvProfileAddress);
+        tvCountry = view.findViewById(R.id.tvProfileCountry);
+        tvGender = view.findViewById(R.id.tvProfileGender);
+        tvPhone = view.findViewById(R.id.tvProfilePhone);
+        btnLogout = view.findViewById(R.id.btnLogout);
+
+        // 3. Initialize Firebase
+        mAuth = FirebaseAuth.getInstance();
+        String uid = mAuth.getUid();
+
+        if (uid != null) {
+            userRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
+            fetchUserData();
+        }
+
+        // 4. Logout Logic
+        btnLogout.setOnClickListener(v -> {
+            mAuth.signOut();
+            SharedPreferences sp = getActivity().getSharedPreferences("login", Context.MODE_PRIVATE);
+            sp.edit().clear().apply();
+            sp.edit().putBoolean("isfirsttimeapp", false).apply();
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            startActivity(intent);
+            getActivity().finish();
+        });
+
+        return view;
+    }
+
+    private void fetchUserData() {
+        // Use single value event to fetch data once
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    // Map database data to our User class
+                    User user = snapshot.getValue(User.class);
+
+                    if (user != null) {
+                        // 5. Set text to UI
+                        tvName.setText(user.fullName);
+                        tvAddress.setText(user.address);
+                        tvCountry.setText(user.country);
+                        tvGender.setText(user.gender);
+                        tvPhone.setText(user.phone);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }
