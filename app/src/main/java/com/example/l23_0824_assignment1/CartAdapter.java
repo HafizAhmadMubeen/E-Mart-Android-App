@@ -16,8 +16,8 @@ import java.util.ArrayList;
 interface OnCartChangedListener {
     void onPriceChanged(double newTotal);
 }
-public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder>{
 
+public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
     private Context context;
     private ArrayList<CartItem> cartItems;
@@ -27,6 +27,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         this.context = context;
         this.cartItems = cartItems;
         this.listener = listener;
+    }
+
+    // ✅ NEW METHOD — lets CartFragment refresh the list without recreating adapter
+    public void updateList(ArrayList<CartItem> newList) {
+        this.cartItems.clear();
+        this.cartItems.addAll(newList);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -43,23 +50,25 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
         holder.tvName.setText(product.getName());
         holder.tvPrice.setText(product.getPrice());
-        holder.tvShortDesc.setText(product.getShortDescription());
+        holder.tvShortDesc.setText(product.getDescription());
         holder.ivProduct.setImageResource(product.getImageRes());
         holder.tvQuantity.setText(String.valueOf(item.getQuantity()));
 
         holder.btnPlus.setOnClickListener(v -> {
-            item.setQuantity(item.getQuantity() + 1);
-            notifyItemChanged(position);
-            calculateTotal();
+            int newQty = item.getQuantity() + 1;
+            updateSqlAndNotify(item, newQty, position);
         });
 
         holder.btnMinus.setOnClickListener(v -> {
             if (item.getQuantity() > 1) {
-                item.setQuantity(item.getQuantity() - 1);
-                notifyItemChanged(position);
-                calculateTotal();
+                int newQty = item.getQuantity() - 1;
+                updateSqlAndNotify(item, newQty, position);
             } else {
-                // Optional: Remove item if quantity goes to 0
+                CartDBManager manager = new CartDBManager(context);
+                manager.open();
+                manager.deleteItem(product.getId());
+                manager.close();
+
                 cartItems.remove(position);
                 notifyItemRemoved(position);
                 notifyItemRangeChanged(position, cartItems.size());
@@ -68,6 +77,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         });
 
         holder.ivMenu.setOnClickListener(v -> {
+            CartDBManager manager = new CartDBManager(context);
+            manager.open();
+            manager.deleteItem(product.getId());
+            manager.close();
+
             cartItems.remove(position);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, cartItems.size());
@@ -83,22 +97,35 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private void calculateTotal() {
         double total = 0;
         for (CartItem item : cartItems) {
-            // Remove "$" and convert to double
-            String priceStr = item.getProduct().getPrice().replace("$", "").trim();
-            double price = Double.parseDouble(priceStr);
-            total += (price * item.getQuantity());
+            try {
+                String priceStr = item.getProduct().getPrice().replace("$", "").trim();
+                double price = Double.parseDouble(priceStr);
+                total += (price * item.getQuantity());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         listener.onPriceChanged(total);
     }
 
-    public static class CartViewHolder extends RecyclerView.ViewHolder {
+    private void updateSqlAndNotify(CartItem item, int newQty, int position) {
+        CartDBManager manager = new CartDBManager(context);
+        manager.open();
+        manager.updateQuantity(item.getProduct().getId(), newQty);
+        manager.close();
 
+        item.setQuantity(newQty);
+        notifyItemChanged(position);
+        calculateTotal();
+    }
+
+    public static class CartViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvPrice, tvShortDesc, tvQuantity;
         ImageView ivProduct, ivMenu;
         ImageButton btnPlus, btnMinus;
+
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
-
             tvName = itemView.findViewById(R.id.tvCartName);
             tvPrice = itemView.findViewById(R.id.tvCartPrice);
             tvShortDesc = itemView.findViewById(R.id.tvCartShortDesc);
@@ -107,8 +134,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             ivMenu = itemView.findViewById(R.id.ivCartMenu);
             btnPlus = itemView.findViewById(R.id.btnPlus);
             btnMinus = itemView.findViewById(R.id.btnMinus);
-
-
         }
     }
 }

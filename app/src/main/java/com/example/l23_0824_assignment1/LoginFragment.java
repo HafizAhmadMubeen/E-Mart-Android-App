@@ -86,9 +86,18 @@ public class LoginFragment extends Fragment {
                     String role = task.getResult().child("accountType").getValue(String.class);
                     saveToPrefs(uid, role);
 
-                    Intent intent = new Intent(getActivity(), MainActivity.class);
-                    startActivity(intent);
-                    getActivity().finish();
+                    if (role.equals("Seller"))
+                    {
+                        Intent intent = new Intent(getActivity(), SellerDashboardActivity.class);
+                        startActivity(intent);
+                        getActivity().finish();
+                    } else
+                    {
+                        Intent intent = new Intent(getActivity(), MainActivity.class);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }
+
                 } else {
                     // YES FIRST TIME: Verified but no data, go to Profile Add Page
                     // (Change CompleteProfileActivity to your actual Activity name)

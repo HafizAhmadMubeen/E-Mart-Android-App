@@ -41,63 +41,40 @@ public class Favourties_Adapter extends RecyclerView.Adapter<Favourties_Adapter.
     @Override
     public void onBindViewHolder(@NonNull FavourtiesViewHolder holder, int position) {
         Product product = favList.get(position);
-
-        holder.ivProduct.setImageResource(product.getImageRes());
         holder.tvPrice.setText(product.getPrice());
         holder.tvName.setText(product.getName());
-        holder.tvShortDesc.setText(product.getShortDescription());
+        holder.tvShortDesc.setText(product.getDescription());
 
-
+        // REQUIREMENT 2b: Add to Cart from Favourites Page
         holder.ivCart.setOnClickListener(v -> {
-            CartSp = context.getSharedPreferences("cartList", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = CartSp.edit();
+            CartDBManager db = new CartDBManager(context);
+            db.open();
+            db.addToCart(product); // This adds with quantity = 1 internally
+            db.close();
 
-            editor.putInt(product.getName() + "_qty", 1);
-            editor.putString(product.getName() + "_price", product.getPrice());
-            editor.apply();
-            CartManager.addProduct(product);
-
-
-            Toast.makeText(context, "Added to Cart", Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(context, "Added to SQLite Cart", Toast.LENGTH_SHORT).show();
         });
 
+        // REQUIREMENT 4: Delete via Alert Dialog from SQLite
         holder.ivMore.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("Delete Product");
-            builder.setMessage("Do you want to delete this product from favourites?");
+            new AlertDialog.Builder(context)
+                    .setTitle("Delete Product")
+                    .setMessage("Do you want to delete this product from favourites?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        FavDBManager manager = new FavDBManager(context);
+                        manager.open();
+                        int count = manager.deleteFavourite(product.getId());
+                        manager.close();
 
-            builder.setPositiveButton("Yes", (dialog, which) -> {
-                favSp = context.getSharedPreferences("favourites", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = favSp.edit();
-
-
-                Set<String> currentSet = favSp.getStringSet("fav_names_set", new HashSet<>());
-                Set<String> updatedSet = new HashSet<>(currentSet);
-
-
-                updatedSet.remove(product.getName());
-                editor.putStringSet("fav_names_set", updatedSet);
-
-
-                editor.remove(product.getName() + "_price");
-                editor.remove(product.getName() + "_desc");
-                editor.apply();
-
-
-                favList.remove(position);
-                notifyItemRemoved(position);
-                notifyItemRangeChanged(position, favList.size());
-                if (context instanceof MainActivity) {
-                    ((MainActivity) context).updateFavouritesBadge();
-                }
-
-                Toast.makeText(context, "Removed from Favourites", Toast.LENGTH_SHORT).show();
-            });
-
-            builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
-
-            builder.create().show();
+                        if (count > 0) {
+                            favList.remove(position);
+                            notifyItemRemoved(position);
+                            notifyItemRangeChanged(position, favList.size());
+                            Toast.makeText(context, "Removed from SQLite DB", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .show();
         });
     }
 

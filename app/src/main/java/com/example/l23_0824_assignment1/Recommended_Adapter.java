@@ -40,70 +40,52 @@ public class Recommended_Adapter extends RecyclerView.Adapter<Recommended_Adapte
     @Override
     public void onBindViewHolder(@NonNull RecommendedViewHolder holder, int position) {
         Product product = productArrayList.get(position);
-        String name = product.getName();
 
-
-        holder.ivRecProduct.setImageResource(product.getImageRes());
+        // 1. Set Text using the Firebase-mapped fields
+        holder.tvRecName.setText(product.getName());
         holder.tvRecPrice.setText(product.getPrice());
-        holder.tvRecName.setText(name);
-        holder.tvRecModel.setText(product.getShortDescription());
 
+        // Use getDescription() because your Firebase key is 'productDescription'
+        holder.tvRecModel.setText(product.getDescription());
 
-        SharedPreferences sp = context.getSharedPreferences("favourites", Context.MODE_PRIVATE);
+        // 2. Set Placeholder Image (Firebase doesn't store local Res IDs)
+        holder.ivRecProduct.setImageResource(R.drawable.onboarding_icon);
 
+        // 3. SQLite Heart Status - Remove SharedPreferences logic here
+        FavDBManager manager = new FavDBManager(context);
+        manager.open();
+        boolean isFav = manager.isFavourite(product.getId());
+        manager.close();
 
-        Set<String> favSet = sp.getStringSet("fav_names_set", new HashSet<>());
+        holder.ivHeartRec.setImageResource(isFav ? R.drawable.filled_heart_icon : R.drawable.empty_heart_icon);
 
-        if (favSet.contains(name)) {
-            holder.ivHeartRec.setImageResource(R.drawable.filled_heart_icon);
-        } else {
-            holder.ivHeartRec.setImageResource(R.drawable.empty_heart_icon);
-        }
-
+        // 4. Detail Page Navigation
         holder.cardRecommended.setOnClickListener(v -> {
             SharedPreferences sp1 = v.getContext().getSharedPreferences("TransferSP", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sp1.edit();
-
-            // Save every piece of info individually
-            editor.putString("p_name", product.getName());
-            editor.putString("p_price", product.getPrice());
-            editor.putString("p_desc", product.getDescription());
-            editor.putInt("p_img", product.getImageRes());
-
-            editor.apply();
+            sp1.edit()
+                    .putString("p_name", product.getName())
+                    .putString("p_price", product.getPrice())
+                    .putString("p_desc", product.getDescription())
+                    .putInt("p_img", product.getImageRes())
+                    .apply();
 
             Intent intent = new Intent(v.getContext(), RecommendedDetailActivity.class);
             v.getContext().startActivity(intent);
         });
 
+        // 5. Heart Click Listener (SQLite)
         holder.ivHeartRec.setOnClickListener(v -> {
-
-            Set<String> updatedSet = new HashSet<>(sp.getStringSet("fav_names_set", new HashSet<>()));
-            SharedPreferences.Editor editor = sp.edit();
-
-            if (!updatedSet.contains(name)) {
-                updatedSet.add(name);
-                editor.putString(name + "_price", product.getPrice());
-                editor.putString(name + "_desc", product.getShortDescription());
-                editor.putInt(product.getName() + "_img", product.getImageRes());
-
+            manager.open();
+            if (!manager.isFavourite(product.getId())) {
+                manager.addFavourite(product);
                 holder.ivHeartRec.setImageResource(R.drawable.filled_heart_icon);
-
                 Toast.makeText(context, "Added to Favourites", Toast.LENGTH_SHORT).show();
             } else {
-                updatedSet.remove(name);
-                editor.remove(name + "_price");
-                editor.remove(name + "_desc");
-                editor.remove(product.getName() + "_img");
-
-
-
-
+                manager.deleteFavourite(product.getId());
                 holder.ivHeartRec.setImageResource(R.drawable.empty_heart_icon);
                 Toast.makeText(context, "Removed from Favourites", Toast.LENGTH_SHORT).show();
             }
-            editor.putStringSet("fav_names_set", updatedSet);
-            editor.apply();
+            manager.close();
 
             if (context instanceof MainActivity) {
                 ((MainActivity) context).updateFavouritesBadge();

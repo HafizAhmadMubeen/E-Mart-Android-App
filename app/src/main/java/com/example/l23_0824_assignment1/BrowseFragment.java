@@ -1,13 +1,7 @@
 package com.example.l23_0824_assignment1;
 
-import static android.content.Context.MODE_PRIVATE;
-
-import static com.google.android.material.internal.ViewUtils.hideKeyboard;
-
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -23,62 +17,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link BrowseFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class BrowseFragment extends Fragment {
-    private ArrayList<Product> allProducts;
+    private SearchHistoryDB dbHelper;
+    private DatabaseReference productsRef;
+    private ArrayList<Product> firebaseProducts;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public BrowseFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment BrowseFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static BrowseFragment newInstance(String param1, String param2) {
-        BrowseFragment fragment = new BrowseFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    public BrowseFragment() {}
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_browse, container, false);
     }
 
@@ -86,80 +41,64 @@ public class BrowseFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        allProducts = new ArrayList<>();
-        allProducts = Product_Repository.getAllProducts();
+        dbHelper = new SearchHistoryDB(getContext());
+        firebaseProducts = new ArrayList<>();
+        productsRef = FirebaseDatabase.getInstance().getReference("Products");
+
+        // Continuously keep a local copy of products for fast searching
+        listenForProducts();
 
         ImageView ivBack = view.findViewById(R.id.ivBack);
         TextView tvClearAll = view.findViewById(R.id.tvClearAll);
         EditText etSearch = view.findViewById(R.id.etSearch);
 
-
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             String query = etSearch.getText().toString().trim();
-
             if (!query.isEmpty()) {
                 hideKeyboard();
-
                 performSearch(query);
-
-                saveSearchToHistory(query);
-                saveSearchToHistory(query);
+                dbHelper.addHistory(query); // SQLite save
                 loadSearchHistory();
-
                 etSearch.setText("");
             }
             return true;
         });
 
-        ivBack.setOnClickListener(v -> {
-            hideKeyboard();
-        });
-
-
-
-        loadSearchHistory();
         tvClearAll.setOnClickListener(v -> {
-            SharedPreferences sp = getContext().getSharedPreferences("SearchHistory", MODE_PRIVATE);
-            sp.edit().remove("recent_searches_key").apply();
-            hideKeyboard();
+            dbHelper.clearHistory(); // SQLite clear
             loadSearchHistory();
         });
 
+        loadSearchHistory();
+    }
+
+    private void listenForProducts() {
+        productsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                firebaseProducts.clear();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    Product p = ds.getValue(Product.class);
+                    if (p != null) firebaseProducts.add(p);
+                }
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
     }
 
     private void loadSearchHistory() {
-        SharedPreferences sp = getContext().getSharedPreferences("SearchHistory", MODE_PRIVATE);
-
-
-        Set<String> set = sp.getStringSet("recent_searches_key", new HashSet<>());
-
-        // 2. Convert to ArrayList
-        ArrayList<String> historyList = new ArrayList<>(set);
-
-        // 3. Set Adapter
+        ArrayList<String> historyList = dbHelper.getAllHistory();
         BrowseHistoryAdapter adapter = new BrowseHistoryAdapter(getContext(), historyList);
         RecyclerView rvSearchHistory = getView().findViewById(R.id.rvSearchHistory);
-        if (rvSearchHistory != null)
-        {
+        if (rvSearchHistory != null) {
             rvSearchHistory.setLayoutManager(new LinearLayoutManager(getContext()));
             rvSearchHistory.setAdapter(adapter);
         }
     }
 
-    private void hideKeyboard() {
-
-        View view = requireActivity().getCurrentFocus();
-
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
-
     private void performSearch(String query) {
         boolean isFound = false;
-
-        for (Product p : allProducts) {
+        for (Product p : firebaseProducts) {
             if (p.getName().toLowerCase().contains(query.toLowerCase())) {
                 isFound = true;
                 break;
@@ -168,25 +107,19 @@ public class BrowseFragment extends Fragment {
 
         if (isFound) {
             new androidx.appcompat.app.AlertDialog.Builder(getContext())
-                    .setMessage("Product Found.")
+                    .setMessage("Product Found in E-Mart Database.")
                     .setPositiveButton("OK", null)
                     .show();
         } else {
-            Toast.makeText(getContext(), "Product Not Found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "No such product available", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void saveSearchToHistory(String query) {
-        SharedPreferences sp = getContext().getSharedPreferences("SearchHistory", MODE_PRIVATE);
-
-        // 1. Get the existing history (or empty set if none)
-        Set<String> set = sp.getStringSet("recent_searches_key", new HashSet<>());
-
-        // 2. Create a NEW copy of the set to ensure Android saves it
-        Set<String> updatedSet = new HashSet<>(set);
-        updatedSet.add(query);
-
-        // 3. Save the updated set back to SharedPreferences
-        sp.edit().putStringSet("recent_searches_key", updatedSet).apply();
+    private void hideKeyboard() {
+        View view = requireActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 }

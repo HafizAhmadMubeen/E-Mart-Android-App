@@ -1,74 +1,24 @@
 package com.example.l23_0824_assignment1;
 
-
 import android.os.Bundle;
-
+import android.view.*;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListView;
-
+import androidx.recyclerview.widget.*;
+import com.google.firebase.database.*;
 import java.util.ArrayList;
-import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class HomeFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public HomeFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private RecyclerView rvRecommended, rvDeals;
+    private Recommended_Adapter recAdapter;
+    private DealsAdapter dealsAdapter;
+    private ArrayList<Product> productList;
+    private DatabaseReference dbRef;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
@@ -76,42 +26,42 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        loadHomepage();
-    }
+        dbRef = FirebaseDatabase.getInstance().getReference("Products");
+        productList = new ArrayList<>();
 
-    private void loadHomepage() {
-
-        RecyclerView rvRecommended = getView().findViewById(R.id.rvRecommended);
-        RecyclerView rvDeals = getView().findViewById(R.id.rvDeals);
-
+        rvRecommended = view.findViewById(R.id.rvRecommended);
+        rvDeals = view.findViewById(R.id.rvDeals);
 
         rvRecommended.setLayoutManager(new GridLayoutManager(getContext(), 2));
         rvDeals.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
+        recAdapter = new Recommended_Adapter(getActivity(), productList);
+        dealsAdapter = new DealsAdapter(getContext(), productList);
 
-        ArrayList<Product> allProducts = Product_Repository.getAllProducts();
-
-
-        ArrayList<Product> dealProducts = new ArrayList<>();
-        if (allProducts.size() >= 3) {
-            dealProducts.add(allProducts.get(0));
-            dealProducts.add(allProducts.get(1));
-            dealProducts.add(allProducts.get(2));
-        }
-
-
-        DealsAdapter dealsAdapter = new DealsAdapter(getContext(), dealProducts);
+        rvRecommended.setAdapter(recAdapter);
         rvDeals.setAdapter(dealsAdapter);
 
-
-        rvRecommended.setHasFixedSize(true);
-        Recommended_Adapter adapter = new Recommended_Adapter(getActivity(), allProducts);
-        rvRecommended.setAdapter(adapter);
+        fetchRealtimeData();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        loadHomepage();
+    private void fetchRealtimeData() {
+        dbRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                productList.clear();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    Product p = ds.getValue(Product.class);
+                    if (p != null) {
+                        // IMPORTANT: Always set the ID from the Firebase key
+                        p.setProductId(ds.getKey());
+                        productList.add(p);
+                    }
+                }
+                recAdapter.notifyDataSetChanged();
+                dealsAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
     }
 }

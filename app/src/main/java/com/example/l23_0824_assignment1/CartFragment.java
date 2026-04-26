@@ -23,24 +23,22 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
 public class CartFragment extends Fragment {
     private static final int SMS_PERMISSION_CODE = 101;
-
     private RecyclerView rvCartItems;
-    private TextView tvTotalPrice, tvShippingPrice;
+    private TextView tvTotalPrice;
     private Button btnCheckout;
     private CartAdapter adapter;
+    private ArrayList<CartItem> cartList;
 
-    public CartFragment() {
-        // Required empty public constructor
-    }
+    public CartFragment() {}
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_cart, container, false);
     }
 
@@ -50,29 +48,16 @@ public class CartFragment extends Fragment {
 
         rvCartItems = view.findViewById(R.id.rvCartItems);
         tvTotalPrice = view.findViewById(R.id.tvTotalPrice);
-        tvShippingPrice = view.findViewById(R.id.tvShippingPrice);
         btnCheckout = view.findViewById(R.id.btnCheckout);
 
         rvCartItems.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new CartAdapter(getContext(), CartManager.cartList, new OnCartChangedListener() {
-            @Override
-            public void onPriceChanged(double newTotal) {
-                updatePriceUI(newTotal);
-            }
-        });
-
-        rvCartItems.setAdapter(adapter);
-        calculateInitialTotal();
-
         btnCheckout.setOnClickListener(v -> {
-            if (CartManager.cartList.isEmpty()) {
+            if (cartList == null || cartList.isEmpty()) {
                 Toast.makeText(getContext(), "Cart is empty", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.SEND_SMS)
-                    == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
                 showConfirmOrderDialog();
             } else {
                 requestPermissions(new String[]{Manifest.permission.SEND_SMS}, SMS_PERMISSION_CODE);
@@ -80,44 +65,71 @@ public class CartFragment extends Fragment {
         });
     }
 
-    private void calculateInitialTotal() {
-        double total = 0;
-        for (CartItem item : CartManager.cartList) {
-            String priceStr = item.getProduct().getPrice().replace("$", "").trim();
-            double price = Double.parseDouble(priceStr);
-            total += (price * item.getQuantity());
-        }
-        updatePriceUI(total);
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadCartFromSQLite();
     }
 
-    private void updatePriceUI(double total) {
-        tvTotalPrice.setText(String.format("$%.2f", total));
+    private void loadCartFromSQLite() {
+        CartDBManager db = new CartDBManager(getContext());
+        db.open();
+        cartList = db.getAllCartItems();
+        db.close();
+
+        if (adapter == null) {
+            adapter = new CartAdapter(getContext(), cartList, newTotal -> {
+                tvTotalPrice.setText(String.format("$%.2f", newTotal));
+            });
+            rvCartItems.setAdapter(adapter);
+        } else {
+            adapter.updateList(cartList);
+        }
+
+        calculateTotal();
+    }
+
+    private void calculateTotal() {
+        double total = 0;
+        for (CartItem item : cartList) {
+            try {
+                String priceStr = item.getProduct().getPrice().replace("$", "").trim();
+                if (!priceStr.isEmpty()) {
+                    total += (Double.parseDouble(priceStr) * item.getQuantity());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        tvTotalPrice.setText(String.format(Locale.getDefault(), "$%.2f", total));
     }
 
     private void showConfirmOrderDialog() {
-        StringBuilder productSummary = new StringBuilder();
+        StringBuilder sb = new StringBuilder("E-Mart Order Summary:\n");
         double total = 0;
 
-        for (CartItem item : CartManager.cartList) {
-            productSummary.append(item.getProduct().getName())
-                    .append(" (x").append(item.getQuantity()).append(")\n");
-
-            double price = Double.parseDouble(item.getProduct().getPrice().replace("$", ""));
-            total += (price * item.getQuantity());
+        for (CartItem item : cartList) {
+            sb.append("- ").append(item.getProduct().getName())
+                    .append(" (").append(item.getProduct().getPrice()).append(")")
+                    .append(" x").append(item.getQuantity()).append("\n");
+            try {
+                double price = Double.parseDouble(item.getProduct().getPrice().replace("$", "").trim());
+                total += (price * item.getQuantity());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         final String finalTotal = String.format("%.2f", total);
-        final String finalSummary = productSummary.toString();
+        sb.append("Total Price: $").append(finalTotal);
+        final String smsMessage = sb.toString();
 
         new AlertDialog.Builder(getContext())
-                .setTitle("Confirm Purchase")
-                .setMessage("Place this order and save to history?")
+                .setTitle("Checkout")
+                .setMessage("Send order via SMS and save to history?")
                 .setPositiveButton("Confirm", (dialog, which) -> {
-                    // 1. Save to Firebase Order History
-                    saveOrderToFirebase(finalSummary, finalTotal);
-
-                    // 2. Send SMS
-                    sendCartSMS("E-Mart Order:\n" + finalSummary + "Total: $" + finalTotal);
+                    saveOrderToFirebase(smsMessage, finalTotal);
+                    sendCartSMS(smsMessage);
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -126,54 +138,28 @@ public class CartFragment extends Fragment {
     private void saveOrderToFirebase(String summary, String total) {
         String uid = FirebaseAuth.getInstance().getUid();
         DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference("Orders");
-
-        // Generate Unique Order ID
         String orderId = ordersRef.push().getKey();
+        String date = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
 
-        // Get Current Date
-        String currentDate = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
+        OrderModel order = new OrderModel(orderId, date, "PROCESSING", total, summary, uid);
 
-        if (uid != null && orderId != null) {
-            OrderModel newOrder = new OrderModel(
-                    orderId,
-                    currentDate,
-                    "PROCESSING",
-                    total,
-                    summary,
-                    uid
-            );
+        ordersRef.child(orderId).setValue(order).addOnSuccessListener(aVoid -> {
+            CartDBManager db = new CartDBManager(getContext());
+            db.open();
+            db.clearCart();
+            db.close();
 
-            ordersRef.child(orderId).setValue(newOrder)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(getContext(), "Order recorded in history", Toast.LENGTH_SHORT).show();
-
-                        // Clear Cart after successful save
-                        CartManager.cartList.clear();
-                        adapter.notifyDataSetChanged();
-                        updatePriceUI(0);
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to save order: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-        }
+            loadCartFromSQLite();
+            Toast.makeText(getContext(), "Order Placed & History Updated!", Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void sendCartSMS(String message) {
-        String phoneNumber = "03001234567";
         try {
-            SmsManager smsManager = getContext().getSystemService(SmsManager.class);
-            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+            SmsManager sms = getContext().getSystemService(SmsManager.class);
+            sms.sendTextMessage("03001234567", null, message, null, null);
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == SMS_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showConfirmOrderDialog();
-            } else {
-                Toast.makeText(getContext(), "Permission Denied to send SMS", Toast.LENGTH_SHORT).show();
-            }
+            Toast.makeText(getContext(), "SMS Failed", Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -39,33 +39,30 @@ public class RecommendedDetailActivity extends AppCompatActivity {
        Intent i =getIntent();
        setupProductDetails();
 
+
         btnbuynow.setOnClickListener(v -> {
             SharedPreferences sp = getSharedPreferences("TransferSP", MODE_PRIVATE);
             String name = sp.getString("p_name", "");
             String price = sp.getString("p_price", "");
-            String shortDesc = ""; // You can pull this if needed
             String longDesc = sp.getString("p_desc", "");
-            int imgRes = sp.getInt("p_img", 0);
 
+            Product cartProduct = new Product("ID_CART", name, price, longDesc, "General", "Seller");
 
-            Product cartProduct = new Product("ID_CART", name, price, "", shortDesc, longDesc, imgRes, false);
+            CartDBManager db = new CartDBManager(RecommendedDetailActivity.this);
+            db.open();
+            long result = db.addToCart(cartProduct);
+            db.close();
 
-
-            CartManager.addProduct(cartProduct);
-
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(RecommendedDetailActivity.this);
-            builder.setTitle("Added to Cart");
-            builder.setMessage("Do you want to add this product to cart?");
-            builder.setPositiveButton("Yes", (dialog, which) -> {
-                Toast.makeText(RecommendedDetailActivity.this, "Added to Cart", Toast.LENGTH_SHORT).show();
-
-            });
-            builder.setNegativeButton("No", (dialog, which) -> {
-                dialog.dismiss();
-            });
-            builder.create().show();
-
+            if (result != -1) {
+                new AlertDialog.Builder(RecommendedDetailActivity.this)
+                        .setTitle("Added to Cart")
+                        .setMessage("Do you want to go to your cart or stay here?")
+                        .setPositiveButton("Stay Here", (dialog, which) -> {
+                            Toast.makeText(RecommendedDetailActivity.this, "Product Saved in Cart", Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton("Close", (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
         });
 
        btnBack.setOnClickListener(v -> {
