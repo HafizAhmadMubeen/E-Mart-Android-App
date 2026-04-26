@@ -58,8 +58,7 @@ public class ProfileFragment extends Fragment {
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
             SharedPreferences sp = getActivity().getSharedPreferences("login", Context.MODE_PRIVATE);
-            sp.edit().clear().apply();
-            sp.edit().putBoolean("isfirsttimeapp", false).apply();
+            sp.edit().putBoolean("isLoggedIn", false).apply();
             Intent intent = new Intent(getActivity(), MainActivity.class);
             startActivity(intent);
             getActivity().finish();

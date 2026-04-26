@@ -70,11 +70,11 @@ public class SellerDashboardActivity extends AppCompatActivity implements Naviga
         navigationView.setNavigationItemSelectedListener(this);
 
 //        // 7. Load Default Fragment (Home)
-//        if (savedInstanceState == null) {
-//            getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.fragmentContainer, new HomeFragment()).commit();
-//            navigationView.setCheckedItem(R.id.nav_home);
-//        }
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new SellerHomeFragment()).commit();
+            navigationView.setCheckedItem(R.id.nav_home);
+        }
 
         // 8. Theme Switching Buttons (Found inside the Navigation View)
         TextView btnLight = findViewById(R.id.btnLight);
@@ -119,11 +119,15 @@ public class SellerDashboardActivity extends AppCompatActivity implements Naviga
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, new SellerHomeFragment()).commit();
         } else if (id == R.id.nav_orders) {
-            // getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new OrdersFragment()).commit();
-            Toast.makeText(this, "Order History", Toast.LENGTH_SHORT).show();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new CheckOrderHistory()).commit();
         }
         else if (id == R.id.nav_logout) {
             logoutUser();
+        }
+        else if ( id == R.id.nav_settings) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new ProfileFragment()).commit();
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
