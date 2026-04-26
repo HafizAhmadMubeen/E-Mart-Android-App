@@ -125,6 +125,10 @@ public class SellerDashboardActivity extends AppCompatActivity implements Naviga
         else if (id == R.id.nav_logout) {
             logoutUser();
         }
+        else if (id == R.id.nav_chats) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new ChatListFragment()).commit();
+        }
         else if ( id == R.id.nav_settings) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, new ProfileFragment()).commit();
