@@ -45,8 +45,10 @@ public class RecommendedDetailActivity extends AppCompatActivity {
             String name = sp.getString("p_name", "");
             String price = sp.getString("p_price", "");
             String longDesc = sp.getString("p_desc", "");
+            String sellerId = sp.getString("p_seller_id", "");
 
-            Product cartProduct = new Product("ID_CART", name, price, longDesc, "General", "Seller");
+
+            Product cartProduct = new Product("ID_CART", name, price, longDesc, "General", sellerId);
 
             CartDBManager db = new CartDBManager(RecommendedDetailActivity.this);
             db.open();
@@ -58,7 +60,8 @@ public class RecommendedDetailActivity extends AppCompatActivity {
                         .setTitle("Added to Cart")
                         .setMessage("Do you want to go to your cart or stay here?")
                         .setPositiveButton("Stay Here", (dialog, which) -> {
-                            Toast.makeText(RecommendedDetailActivity.this, "Product Saved in Cart", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RecommendedDetailActivity.this,
+                                    "Product Saved in Cart", Toast.LENGTH_SHORT).show();
                         })
                         .setNegativeButton("Close", (dialog, which) -> dialog.dismiss())
                         .show();

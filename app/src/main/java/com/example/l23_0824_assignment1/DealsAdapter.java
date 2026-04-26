@@ -79,6 +79,7 @@ public class DealsAdapter extends RecyclerView.Adapter<DealsAdapter.DealViewHold
                     .putString("p_price", product.getPrice())
                     .putString("p_desc", product.getDescription())
                     .putInt("p_img", product.getImageRes())
+                    .putString("p_seller_id", product.getSellerId())
                     .apply();
             context.startActivity(new Intent(context, RecommendedDetailActivity.class));
         });

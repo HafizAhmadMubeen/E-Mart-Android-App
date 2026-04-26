@@ -10,15 +10,16 @@ import java.util.ArrayList;
 
 public class FavDBManager {
     public static final String DATABASE_NAME = "FavouritesDB";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2; // ✅ bumped
     public static final String TABLE_NAME = "fav_products";
 
-    public static final String COLUMN_ID = "id"; // Local SQL ID
-    public static final String COLUMN_P_ID = "product_id"; // Firebase ID
+    public static final String COLUMN_ID = "id";
+    public static final String COLUMN_P_ID = "product_id";
     public static final String COLUMN_NAME = "product_name";
     public static final String COLUMN_PRICE = "product_price";
     public static final String COLUMN_DESC = "product_desc";
     public static final String COLUMN_IMG = "product_img";
+    public static final String COLUMN_SELLER_ID = "seller_id"; // ✅ NEW
 
     Context context;
     DBHelper helper;
@@ -27,15 +28,9 @@ public class FavDBManager {
         this.context = context;
     }
 
-    public void open() {
-        helper = new DBHelper(context);
-    }
+    public void open() { helper = new DBHelper(context); }
+    public void close() { helper.close(); }
 
-    public void close() {
-        helper.close();
-    }
-
-    // CREATE: Add to Favourites
     public long addFavourite(Product product) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -44,13 +39,12 @@ public class FavDBManager {
         cv.put(COLUMN_PRICE, product.getPrice());
         cv.put(COLUMN_DESC, product.getDescription());
         cv.put(COLUMN_IMG, product.getImageRes());
-
+        cv.put(COLUMN_SELLER_ID, product.getSellerId());
         long count = db.insert(TABLE_NAME, null, cv);
         db.close();
         return count;
     }
 
-    // READ: Get all Favourites
     public ArrayList<Product> getAllFavourites() {
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
@@ -61,7 +55,7 @@ public class FavDBManager {
             int idxName = cursor.getColumnIndex(COLUMN_NAME);
             int idxPrice = cursor.getColumnIndex(COLUMN_PRICE);
             int idxDesc = cursor.getColumnIndex(COLUMN_DESC);
-            int idxImg = cursor.getColumnIndex(COLUMN_IMG);
+            int idxSellerId = cursor.getColumnIndex(COLUMN_SELLER_ID);
 
             do {
                 Product p = new Product(
@@ -69,9 +63,9 @@ public class FavDBManager {
                         cursor.getString(idxName),
                         cursor.getString(idxPrice),
                         cursor.getString(idxDesc),
-                        "General", "Unknown"
+                        "General",
+                        cursor.getString(idxSellerId)
                 );
-                // If you had a setImgRes method, you'd use it here
                 favs.add(p);
             } while (cursor.moveToNext());
             cursor.close();
@@ -80,7 +74,6 @@ public class FavDBManager {
         return favs;
     }
 
-    // DELETE: Remove by Firebase ID
     public int deleteFavourite(String productId) {
         SQLiteDatabase db = helper.getWritableDatabase();
         int count = db.delete(TABLE_NAME, COLUMN_P_ID + "=?", new String[]{productId});
@@ -88,21 +81,13 @@ public class FavDBManager {
         return count;
     }
 
-    // Check if exists
     public boolean isFavourite(String productId) {
-        // Safety Check: If ID is null, it can't be a favourite
-        if (productId == null) {
-            return false;
-        }
-
+        if (productId == null) return false;
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = db.query(TABLE_NAME, null, COLUMN_P_ID + "=?",
                 new String[]{productId}, null, null, null);
-
         boolean exists = (cursor != null && cursor.getCount() > 0);
-        if (cursor != null) {
-            cursor.close();
-        }
+        if (cursor != null) cursor.close();
         db.close();
         return exists;
     }
@@ -114,14 +99,14 @@ public class FavDBManager {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            String query = "CREATE TABLE " + TABLE_NAME + "("
+            db.execSQL("CREATE TABLE " + TABLE_NAME + "("
                     + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + COLUMN_P_ID + " TEXT, "
                     + COLUMN_NAME + " TEXT, "
                     + COLUMN_PRICE + " TEXT, "
                     + COLUMN_DESC + " TEXT, "
-                    + COLUMN_IMG + " INTEGER)";
-            db.execSQL(query);
+                    + COLUMN_IMG + " INTEGER, "
+                    + COLUMN_SELLER_ID + " TEXT)");
         }
 
         @Override

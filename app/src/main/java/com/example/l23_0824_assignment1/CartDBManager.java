@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class CartDBManager {
     public static final String DATABASE_NAME = "CartDB";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2; // ✅ bumped from 1 to 2
     public static final String TABLE_NAME = "cart";
 
     public static final String COLUMN_ID = "id";
@@ -19,6 +19,7 @@ public class CartDBManager {
     public static final String COLUMN_PRICE = "product_price";
     public static final String COLUMN_DESC = "product_desc";
     public static final String COLUMN_QTY = "quantity";
+    public static final String COLUMN_SELLER_ID = "seller_id"; // ✅ NEW
 
     Context context;
     DBHelper helper;
@@ -28,12 +29,11 @@ public class CartDBManager {
     public void open() { helper = new DBHelper(context); }
     public void close() { if (helper != null) helper.close(); }
 
-    // Requirement 1 & 2: Add/Insert with Quantity
     public long addToCart(Product product) {
         SQLiteDatabase db = helper.getWritableDatabase();
 
-        // Check if exists to increment instead of insert
-        Cursor cursor = db.query(TABLE_NAME, null, COLUMN_P_ID + "=?", new String[]{product.getId()}, null, null, null);
+        Cursor cursor = db.query(TABLE_NAME, null, COLUMN_P_ID + "=?",
+                new String[]{product.getId()}, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
             int currentQty = cursor.getInt(cursor.getColumnIndex(COLUMN_QTY));
             updateQuantity(product.getId(), currentQty + 1);
@@ -47,12 +47,12 @@ public class CartDBManager {
         cv.put(COLUMN_PRICE, product.getPrice());
         cv.put(COLUMN_DESC, product.getDescription());
         cv.put(COLUMN_QTY, 1);
+        cv.put(COLUMN_SELLER_ID, product.getSellerId()); // ✅ save sellerId
         long result = db.insert(TABLE_NAME, null, cv);
         db.close();
         return result;
     }
 
-    // Requirement 3: Update Query for quantity
     public void updateQuantity(String productId, int newQty) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -61,7 +61,6 @@ public class CartDBManager {
         db.close();
     }
 
-    // Requirement 4 & 6: Fetch latest data
     public ArrayList<CartItem> getAllCartItems() {
         SQLiteDatabase db = helper.getReadableDatabase();
         ArrayList<CartItem> items = new ArrayList<>();
@@ -74,7 +73,8 @@ public class CartDBManager {
                         cursor.getString(cursor.getColumnIndex(COLUMN_NAME)),
                         cursor.getString(cursor.getColumnIndex(COLUMN_PRICE)),
                         cursor.getString(cursor.getColumnIndex(COLUMN_DESC)),
-                        "General", "Unknown"
+                        "General",
+                        cursor.getString(cursor.getColumnIndex(COLUMN_SELLER_ID)) // ✅ load sellerId
                 );
                 int qty = cursor.getInt(cursor.getColumnIndex(COLUMN_QTY));
                 items.add(new CartItem(p, qty));
@@ -84,7 +84,6 @@ public class CartDBManager {
         return items;
     }
 
-    // Requirement 5: Delete Query
     public void deleteItem(String productId) {
         SQLiteDatabase db = helper.getWritableDatabase();
         db.delete(TABLE_NAME, COLUMN_P_ID + "=?", new String[]{productId});
@@ -97,8 +96,25 @@ public class CartDBManager {
         db.close();
     }
 
+    // ✅ NEW — get sellerId of first item in cart for order saving
+    public String getSellerIdFromCart() {
+        SQLiteDatabase db = helper.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, new String[]{COLUMN_SELLER_ID},
+                null, null, null, null, null, "1");
+        String sellerId = "";
+        if (cursor != null && cursor.moveToFirst()) {
+            sellerId = cursor.getString(cursor.getColumnIndex(COLUMN_SELLER_ID));
+            cursor.close();
+        }
+        db.close();
+        return sellerId != null ? sellerId : "";
+    }
+
     private class DBHelper extends SQLiteOpenHelper {
-        public DBHelper(@Nullable Context context) { super(context, DATABASE_NAME, null, DATABASE_VERSION); }
+        public DBHelper(@Nullable Context context) {
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        }
+
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + TABLE_NAME + " (" +
@@ -107,8 +123,10 @@ public class CartDBManager {
                     COLUMN_NAME + " TEXT, " +
                     COLUMN_PRICE + " TEXT, " +
                     COLUMN_DESC + " TEXT, " +
-                    COLUMN_QTY + " INTEGER)");
+                    COLUMN_QTY + " INTEGER, " +
+                    COLUMN_SELLER_ID + " TEXT)"); // ✅ new column
         }
+
         @Override
         public void onUpgrade(SQLiteDatabase db, int i, int i1) {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);

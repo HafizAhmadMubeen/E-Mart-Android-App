@@ -137,7 +137,7 @@ public class SellerDashboardActivity extends AppCompatActivity implements Naviga
     private void logoutUser() {
         mAuth.signOut();
         SharedPreferences sp = getSharedPreferences("login", Context.MODE_PRIVATE);
-        sp.edit().putBoolean("isLoggedIn", false).apply();
+        sp.edit().putBoolean("isLogin", false).apply();
 
         Intent intent = new Intent(SellerDashboardActivity.this, MainActivity.class);
          intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

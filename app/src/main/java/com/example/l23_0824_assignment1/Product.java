@@ -39,6 +39,9 @@ public class Product {
     public int getImageRes() { return imageRes == 0 ? R.drawable.onboarding_icon : imageRes; }
     public boolean isFavourite() { return isFavourite; }
 
+    // Add to Product.java
+    public String getSellerId() { return sellerId; }
+
     // Setters — unchanged
     public void setProductId(String productId) { this.productId = productId; }
     public void setProductName(String productName) { this.productName = productName; }

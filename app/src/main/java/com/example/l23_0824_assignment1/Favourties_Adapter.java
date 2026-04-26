@@ -1,34 +1,33 @@
 package com.example.l23_0824_assignment1;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Favourties_Adapter extends RecyclerView.Adapter<Favourties_Adapter.FavourtiesViewHolder> {
 
     Context context;
     ArrayList<Product> favList;
 
-    SharedPreferences CartSp, favSp;
     public Favourties_Adapter(Context context, ArrayList<Product> favList) {
         this.context = context;
         this.favList = favList;
     }
 
 
+    public void updateList(ArrayList<Product> newList) {
+        this.favList.clear();
+        this.favList.addAll(newList);
+        notifyDataSetChanged();
+    }
 
     @NonNull
     @Override
@@ -45,17 +44,14 @@ public class Favourties_Adapter extends RecyclerView.Adapter<Favourties_Adapter.
         holder.tvName.setText(product.getName());
         holder.tvShortDesc.setText(product.getDescription());
 
-        // REQUIREMENT 2b: Add to Cart from Favourites Page
         holder.ivCart.setOnClickListener(v -> {
             CartDBManager db = new CartDBManager(context);
             db.open();
-            db.addToCart(product); // This adds with quantity = 1 internally
+            db.addToCart(product);
             db.close();
-
-            Toast.makeText(context, "Added to SQLite Cart", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Added to Cart", Toast.LENGTH_SHORT).show();
         });
 
-        // REQUIREMENT 4: Delete via Alert Dialog from SQLite
         holder.ivMore.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
                     .setTitle("Delete Product")
@@ -70,7 +66,7 @@ public class Favourties_Adapter extends RecyclerView.Adapter<Favourties_Adapter.
                             favList.remove(position);
                             notifyItemRemoved(position);
                             notifyItemRangeChanged(position, favList.size());
-                            Toast.makeText(context, "Removed from SQLite DB", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Removed from Favourites", Toast.LENGTH_SHORT).show();
                         }
                     })
                     .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
@@ -97,6 +93,4 @@ public class Favourties_Adapter extends RecyclerView.Adapter<Favourties_Adapter.
             tvShortDesc = itemView.findViewById(R.id.tvFavDesc);
         }
     }
-
-
 }

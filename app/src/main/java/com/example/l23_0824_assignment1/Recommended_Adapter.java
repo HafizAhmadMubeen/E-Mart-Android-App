@@ -61,12 +61,14 @@ public class Recommended_Adapter extends RecyclerView.Adapter<Recommended_Adapte
 
         // 4. Detail Page Navigation
         holder.cardRecommended.setOnClickListener(v -> {
+            android.util.Log.d("DEBUG_SELLER", "sellerId = " + product.getSellerId());
             SharedPreferences sp1 = v.getContext().getSharedPreferences("TransferSP", Context.MODE_PRIVATE);
             sp1.edit()
                     .putString("p_name", product.getName())
                     .putString("p_price", product.getPrice())
                     .putString("p_desc", product.getDescription())
                     .putInt("p_img", product.getImageRes())
+                    .putString("p_seller_id", product.getSellerId())
                     .apply();
 
             Intent intent = new Intent(v.getContext(), RecommendedDetailActivity.class);

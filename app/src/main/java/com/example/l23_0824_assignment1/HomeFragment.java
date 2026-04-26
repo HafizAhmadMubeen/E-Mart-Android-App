@@ -53,6 +53,7 @@ public class HomeFragment extends Fragment {
                     Product p = ds.getValue(Product.class);
                     if (p != null) {
                         // IMPORTANT: Always set the ID from the Firebase key
+
                         p.setProductId(ds.getKey());
                         productList.add(p);
                     }

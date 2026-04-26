@@ -57,7 +57,8 @@ public class CartFragment extends Fragment {
                 Toast.makeText(getContext(), "Cart is empty", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.SEND_SMS)
+                    == PackageManager.PERMISSION_GRANTED) {
                 showConfirmOrderDialog();
             } else {
                 requestPermissions(new String[]{Manifest.permission.SEND_SMS}, SMS_PERMISSION_CODE);
@@ -78,9 +79,8 @@ public class CartFragment extends Fragment {
         db.close();
 
         if (adapter == null) {
-            adapter = new CartAdapter(getContext(), cartList, newTotal -> {
-                tvTotalPrice.setText(String.format("$%.2f", newTotal));
-            });
+            adapter = new CartAdapter(getContext(), cartList, newTotal ->
+                    tvTotalPrice.setText(String.format("$%.2f", newTotal)));
             rvCartItems.setAdapter(adapter);
         } else {
             adapter.updateList(cartList);
@@ -113,7 +113,8 @@ public class CartFragment extends Fragment {
                     .append(" (").append(item.getProduct().getPrice()).append(")")
                     .append(" x").append(item.getQuantity()).append("\n");
             try {
-                double price = Double.parseDouble(item.getProduct().getPrice().replace("$", "").trim());
+                double price = Double.parseDouble(
+                        item.getProduct().getPrice().replace("$", "").trim());
                 total += (price * item.getQuantity());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -136,21 +137,30 @@ public class CartFragment extends Fragment {
     }
 
     private void saveOrderToFirebase(String summary, String total) {
-        String uid = FirebaseAuth.getInstance().getUid();
+        String buyerId = FirebaseAuth.getInstance().getUid();
+
+
+        CartDBManager db = new CartDBManager(getContext());
+        db.open();
+        String sellerId = db.getSellerIdFromCart();
+        db.close();
+
+        android.util.Log.d("DEBUG_SELLER", "sellerId from SQLite = " + sellerId);
+
         DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference("Orders");
         String orderId = ordersRef.push().getKey();
         String date = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
 
-        OrderModel order = new OrderModel(orderId, date, "PROCESSING", total, summary, uid);
+        OrderModel order = new OrderModel(orderId, date, "PROCESSING", total, summary, buyerId, sellerId);
 
         ordersRef.child(orderId).setValue(order).addOnSuccessListener(aVoid -> {
-            CartDBManager db = new CartDBManager(getContext());
-            db.open();
-            db.clearCart();
-            db.close();
+            CartDBManager cartDb = new CartDBManager(getContext());
+            cartDb.open();
+            cartDb.clearCart();
+            cartDb.close();
 
             loadCartFromSQLite();
-            Toast.makeText(getContext(), "Order Placed & History Updated!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Order Placed!", Toast.LENGTH_SHORT).show();
         });
     }
 

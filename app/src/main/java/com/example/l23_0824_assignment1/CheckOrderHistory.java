@@ -56,7 +56,8 @@ public class CheckOrderHistory extends Fragment {
     }
 
     private void fetchOrderHistory(String uid) {
-        ordersRef.orderByChild("buyerId").equalTo(uid)
+
+        ordersRef.orderByChild("sellerId").equalTo(uid)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -64,12 +65,9 @@ public class CheckOrderHistory extends Fragment {
                         if (snapshot.exists()) {
                             for (DataSnapshot ds : snapshot.getChildren()) {
                                 OrderModel order = ds.getValue(OrderModel.class);
-                                // Adding to the beginning of the list so newest orders appear first
                                 orderList.add(0, order);
                             }
                             adapter.notifyDataSetChanged();
-                        } else {
-                            // You can show a "No Orders Yet" message here if you want
                         }
                     }
 
